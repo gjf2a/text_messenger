@@ -45,11 +45,12 @@ class _MyHomePageState extends State<MyHomePage> {
     print("currentFriend: $_currentFriend");
     _nameController = TextEditingController(text: _currentFriend);
     _ipController = TextEditingController(text: _friends.ipAddr(_currentFriend));
+    _sendController = TextEditingController();
     ServerSocket.bind(InternetAddress.anyIPv4, ourPort)
         .then((server) => server.listen((socket) {
           socket.listen((data) {
             setState(() {
-              String ip = socket.remoteAddress.toString();
+              String ip = socket.remoteAddress.address;
               String received = String.fromCharCodes(data);
               print("Received '$received' from '$ip'");
               _friends.receiveFrom(ip, received);
@@ -125,8 +126,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget> [
-        makeTextEntry(100, "Name", _nameController),
-        makeTextEntry(100, "IP Address", _ipController),
+        makeTextEntry(200, "Name", _nameController),
+        makeTextEntry(200, "IP Address", _ipController),
         RaisedButton(child: Text("Add"), onPressed: addNew),
       ],
     );
@@ -148,12 +149,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return Expanded(flex: 1, child: SingleChildScrollView(child: Text(msg)));
   }
 
-  void send(String msg) {
+  void send(String msg) async {
     if (_friends.hasFriend(_currentFriend)) {
       print("Sending '$msg' to '$_currentFriend'");
-      _friends.sendTo(_currentFriend, msg);
+      await _friends.sendTo(_currentFriend, msg);
       setState(() {
-        _sendController.text = "";
+        _sendController.clear();
+        print("inside setState()");
       });
     } else {
       print("Can't send to $_currentFriend");
