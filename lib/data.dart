@@ -51,11 +51,20 @@ class Friend {
     _messages.add(Message(_name, message));
   }
 
-  Future<void> send(String message) async {
-    _messages.add(Message("Me", message));
+  Future<SocketOutcome> send(String message) async {
+    try {
+      return openSocket(message);
+    } on SocketException catch (e) {
+      return SocketOutcome(errorMsg: e.message);
+    }
+  }
+
+  Future<SocketOutcome> openSocket(String message) async {
     Socket socket = await Socket.connect(_ipAddr, ourPort);
     socket.write(message);
     socket.close();
+    _messages.add(Message("Me", message));
+    return SocketOutcome();
   }
 
   String history() => _messages.map((m) => m.transcript).fold("", (message, line) => message + '\n' + line);
@@ -72,4 +81,16 @@ class Message {
   Message(this._author, this._content);
 
   String get transcript => '$_author: $_content';
+}
+
+class SocketOutcome {
+  String _errorMessage;
+
+  SocketOutcome({String errorMsg = ""}) {
+    _errorMessage = errorMsg;
+  }
+
+  bool get sent => _errorMessage.length == 0;
+
+  String get errorMessage => _errorMessage;
 }
