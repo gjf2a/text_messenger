@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _setupServer() async {
     ServerSocket server = await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
-    server.listen(_listenToSocket);
+    server.listen(_listenToSocket); // StreamSubscription<Socket>
   }
 
   void _listenToSocket(Socket socket) {
