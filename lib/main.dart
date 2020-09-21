@@ -160,17 +160,19 @@ class _MyHomePageState extends State<MyHomePage> {
     return Expanded(flex: 1, child: SingleChildScrollView(child: Text(msg)));
   }
 
-  void send(String msg) async {
+  Future<void> send(String msg) async {
+    String response = await _sendToCurrentFriend(msg);
+    setState(() {
+      _sendController.text = response;
+    });
+  }
+
+  Future<String> _sendToCurrentFriend(String msg) async {
     if (_friends.hasFriend(_currentFriend)) {
       await _friends.sendTo(_currentFriend, msg);
-      setState(() {
-        _sendController.clear();
-        print("inside setState()");
-      });
+      return "";
     } else {
-      setState(() {
-        _sendController.text = "Can't send to $_currentFriend";
-      });
+      return "Can't send to $_currentFriend";
     }
   }
 }
