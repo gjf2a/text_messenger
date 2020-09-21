@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:text_messenger/data.dart';
@@ -58,13 +59,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void _listenToSocket(Socket socket) {
     socket.listen((data) {
       setState(() {
-        String ip = socket.remoteAddress.address;
-        String received = String.fromCharCodes(data);
-        print("Received '$received' from '$ip'");
-        _friends.receiveFrom(ip, received);
-        _currentFriend = _friends.getName(ip);
+        _handleIncomingMessage(socket.remoteAddress.address, data);
       });
     });
+  }
+
+  void _handleIncomingMessage(String ip, Uint8List incomingData) {
+    String received = String.fromCharCodes(incomingData);
+    print("Received '$received' from '$ip'");
+    _friends.receiveFrom(ip, received);
+    _currentFriend = _friends.getName(ip);
   }
 
   // From https://medium.com/@boldijar.paul/comboboxes-in-flutter-cabc9178cc95
