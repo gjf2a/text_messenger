@@ -36,7 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List<DropdownMenuItem<String>> _friendList;
   TextEditingController _nameController, _ipController, _sendController;
   Widget Function(BuildContext) _screenFunction;
-  StreamSubscription<Socket> _serverSubscription;
 
   void initState() {
     super.initState();
@@ -53,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _setupServer() async {
     ServerSocket server = await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
-    _serverSubscription = server.listen(_listenToSocket);
+    server.listen(_listenToSocket);
   }
 
   void _listenToSocket(Socket socket) {
