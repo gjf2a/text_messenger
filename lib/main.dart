@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _screenFunction = _mainScreen;
     _friends = Friends();
-    _friends.add("Self", "127.0.0.1");
+    _friends.add("Self", "0.0.0.0");
     _currentFriend = "Self";
     print("currentFriend: $_currentFriend");
     _nameController = TextEditingController(text: _currentFriend);
@@ -48,7 +48,13 @@ class _MyHomePageState extends State<MyHomePage> {
     ServerSocket.bind(InternetAddress.anyIPv4, ourPort)
         .then((server) => server.listen((socket) {
           socket.listen((data) {
-            _friends.receiveFrom(socket.remoteAddress.toString(), String.fromCharCodes(data));
+            setState(() {
+              String ip = socket.remoteAddress.toString();
+              String received = String.fromCharCodes(data);
+              print("Received '$received' from '$ip'");
+              _friends.receiveFrom(ip, received);
+              _currentFriend = _friends.getName(ip);
+            });
           });
     }));
   }
@@ -72,6 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void addFriend() {
     setState(() {
+      _nameController.text = "";
+      _ipController.text = "";
       _screenFunction = _newFriendScreen;
     });
   }
@@ -79,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void addNew() {
     setState(() {
       _friends.add(_nameController.text, _ipController.text);
+      _currentFriend = _nameController.text;
       _screenFunction = _mainScreen;
     });
   }
@@ -107,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         RaisedButton(child: Text("Add Friend"), onPressed: addFriend,),
         historyBox(),
-        makeActionText(100, "Send to $_currentFriend", _sendController, send),
+        makeActionText(200, "Send to $_currentFriend", _sendController, send),
       ],
     );
   }
@@ -134,15 +143,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget historyBox() {
+    // Concept from:  https://stackoverflow.com/questions/49638499/how-to-make-the-scrollable-text-in-flutter
     String msg = _friends.hasFriend(_currentFriend) ? _friends.historyFor(_currentFriend) : "None";
-    return SingleChildScrollView(child: Text(msg));
+    return Expanded(flex: 1, child: SingleChildScrollView(child: Text(msg)));
   }
 
   void send(String msg) {
     if (_friends.hasFriend(_currentFriend)) {
+      print("Sending '$msg' to '$_currentFriend'");
       _friends.sendTo(_currentFriend, msg);
       setState(() {
         _sendController.text = "";
+      });
+    } else {
+      print("Can't send to $_currentFriend");
+      setState(() {
+        _sendController.text = "Can't send to $_currentFriend";
       });
     }
   }

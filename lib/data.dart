@@ -11,6 +11,8 @@ class Friends extends Iterable<String> {
     _ips2Friends[ip] = _names2Friends[name];
   }
 
+  String getName(String ipAddr) => _ips2Friends[ipAddr].name;
+
   String ipAddr(String name) => _names2Friends[name].ipAddr;
 
   bool hasFriend(String name) => _names2Friends.containsKey(name);
@@ -22,6 +24,13 @@ class Friends extends Iterable<String> {
   }
 
   void receiveFrom(String ip, String message) {
+    print("receiveFrom($ip, $message)");
+    if (!_ips2Friends.containsKey(ip)) {
+      String newFriend = "Friend${_ips2Friends.length}";
+      print("Adding new friend");
+      add(newFriend, ip);
+      print("added $newFriend!");
+    }
     _ips2Friends[ip].receive(message);
   }
 
@@ -52,6 +61,8 @@ class Friend {
   String history() => _messages.map((m) => m.transcript).fold("", (message, line) => message + '\n' + line);
 
   String get ipAddr => _ipAddr;
+
+  String get name => _name;
 }
 
 class Message {
