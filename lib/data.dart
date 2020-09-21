@@ -19,7 +19,7 @@ class Friends extends Iterable<String> {
 
   String historyFor(String name) => _names2Friends[name].history();
 
-  void sendTo(String name, String message) {
+  Future<void> sendTo(String name, String message) async {
     _names2Friends[name].send(message);
   }
 
@@ -51,11 +51,11 @@ class Friend {
     _messages.add(Message(_name, message));
   }
 
-  void send(String message) {
+  Future<void> send(String message) async {
     _messages.add(Message("Me", message));
-    Future<Socket> connection = Socket.connect(_ipAddr, ourPort);
-    connection.then((socket) {socket.write(message); socket.destroy();},
-        onError: (error) {print('problem: $error');});
+    Socket socket = await Socket.connect(_ipAddr, ourPort);
+    socket.write(message);
+    socket.close();
   }
 
   String history() => _messages.map((m) => m.transcript).fold("", (message, line) => message + '\n' + line);
