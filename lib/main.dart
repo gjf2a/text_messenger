@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -35,29 +36,36 @@ class _MyHomePageState extends State<MyHomePage> {
   List<DropdownMenuItem<String>> _friendList;
   TextEditingController _nameController, _ipController, _sendController;
   Widget Function(BuildContext) _screenFunction;
+  StreamSubscription<Socket> _serverSubscription;
 
   void initState() {
     super.initState();
     _screenFunction = _mainScreen;
     _friends = Friends();
-    _friends.add("Self", "0.0.0.0");
+    _friends.add("Self", "127.0.0.1");
     _currentFriend = "Self";
     print("currentFriend: $_currentFriend");
     _nameController = TextEditingController(text: _currentFriend);
     _ipController = TextEditingController(text: _friends.ipAddr(_currentFriend));
     _sendController = TextEditingController();
-    ServerSocket.bind(InternetAddress.anyIPv4, ourPort)
-        .then((server) => server.listen((socket) {
-          socket.listen((data) {
-            setState(() {
-              String ip = socket.remoteAddress.address;
-              String received = String.fromCharCodes(data);
-              print("Received '$received' from '$ip'");
-              _friends.receiveFrom(ip, received);
-              _currentFriend = _friends.getName(ip);
-            });
-          });
-    }));
+    _setupServer();
+  }
+
+  Future<void> _setupServer() async {
+    ServerSocket server = await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
+    _serverSubscription = server.listen(_listenToSocket);
+  }
+
+  void _listenToSocket(Socket socket) {
+    socket.listen((data) {
+      setState(() {
+        String ip = socket.remoteAddress.address;
+        String received = String.fromCharCodes(data);
+        print("Received '$received' from '$ip'");
+        _friends.receiveFrom(ip, received);
+        _currentFriend = _friends.getName(ip);
+      });
+    });
   }
 
   // From https://medium.com/@boldijar.paul/comboboxes-in-flutter-cabc9178cc95
@@ -151,14 +159,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void send(String msg) async {
     if (_friends.hasFriend(_currentFriend)) {
-      print("Sending '$msg' to '$_currentFriend'");
       await _friends.sendTo(_currentFriend, msg);
       setState(() {
         _sendController.clear();
         print("inside setState()");
       });
     } else {
-      print("Can't send to $_currentFriend");
       setState(() {
         _sendController.text = "Can't send to $_currentFriend";
       });
