@@ -53,18 +53,14 @@ class Friend {
 
   Future<SocketOutcome> send(String message) async {
     try {
-      return openSocket(message);
+      Socket socket = await Socket.connect(_ipAddr, ourPort);
+      socket.write(message);
+      socket.close();
+      _messages.add(Message("Me", message));
+      return SocketOutcome();
     } on SocketException catch (e) {
       return SocketOutcome(errorMsg: e.message);
     }
-  }
-
-  Future<SocketOutcome> openSocket(String message) async {
-    Socket socket = await Socket.connect(_ipAddr, ourPort);
-    socket.write(message);
-    socket.close();
-    _messages.add(Message("Me", message));
-    return SocketOutcome();
   }
 
   String history() => _messages.map((m) => m.transcript).fold("", (message, line) => message + '\n' + line);
