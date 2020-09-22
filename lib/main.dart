@@ -52,8 +52,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _setupServer() async {
-    ServerSocket server = await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
-    server.listen(_listenToSocket); // StreamSubscription<Socket>
+    try {
+      ServerSocket server =
+        await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
+      server.listen(_listenToSocket); // StreamSubscription<Socket>
+    } on SocketException catch (e) {
+      _sendController.text = e.message;
+    }
   }
 
   void _listenToSocket(Socket socket) {
@@ -169,8 +174,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<String> _sendToCurrentFriend(String msg) async {
     if (_friends.hasFriend(_currentFriend)) {
-      await _friends.sendTo(_currentFriend, msg);
-      return "";
+      SocketOutcome sent = await _friends.sendTo(_currentFriend, msg);
+      if (sent.sent) {
+        return "";
+      } else {
+        return sent.errorMessage;
+      }
     } else {
       return "Can't send to $_currentFriend";
     }

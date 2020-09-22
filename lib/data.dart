@@ -19,8 +19,8 @@ class Friends extends Iterable<String> {
 
   String historyFor(String name) => _names2Friends[name].history();
 
-  Future<void> sendTo(String name, String message) async {
-    _names2Friends[name].send(message);
+  Future<SocketOutcome> sendTo(String name, String message) async {
+    return _names2Friends[name].send(message);
   }
 
   void receiveFrom(String ip, String message) {
