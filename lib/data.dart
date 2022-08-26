@@ -1,6 +1,6 @@
 import 'dart:io';
 
-const int ourPort = 4444;
+const int ourPort = 8888;
 
 class Friends extends Iterable<String> {
   Map<String,Friend> _names2Friends = {};
