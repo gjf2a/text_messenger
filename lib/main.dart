@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // From https://medium.com/@boldijar.paul/comboboxes-in-flutter-cabc9178cc95
   List<DropdownMenuItem<String>> makeFriendList() {
     print("making friend list");
-    List<DropdownMenuItem<String>> items = new List();
+    List<DropdownMenuItem<String>> items = [];
     for (String friend in _friends) {
       items.add(DropdownMenuItem(value: friend, child: Text(friend)));
     }
@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
           items: _friendList,
           onChanged: updateFriendList,
         ),
-        RaisedButton(child: Text("Add Friend"), onPressed: addFriend,),
+        ElevatedButton(child: Text("Add Friend"), onPressed: addFriend,),
         historyBox(),
         makeActionText(200, "Send to $_currentFriend", _sendController, send),
       ],
@@ -144,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
       children: <Widget> [
         makeTextEntry(200, "Name", _nameController),
         makeTextEntry(200, "IP Address", _ipController),
-        RaisedButton(child: Text("Add"), onPressed: addNew),
+        ElevatedButton(child: Text("Add"), onPressed: addNew),
       ],
     );
   }
