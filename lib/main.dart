@@ -174,12 +174,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<String> _sendToCurrentFriend(String msg) async {
     if (_friends.hasFriend(_currentFriend)) {
-      SocketOutcome sent = await _friends.sendTo(_currentFriend, msg);
-      if (sent.sent) {
-        return "";
-      } else {
-        return sent.errorMessage;
-      }
+      return _friends.sendTo(_currentFriend, msg)
+          .then((value) => "")
+          .catchError((e) => "Error: $e");
     } else {
       return "Can't send to $_currentFriend";
     }

@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:mutex/mutex.dart';
 
 const int ourPort = 8888;
+final m = Mutex();
 
 class Friends extends Iterable<String> {
   Map<String,Friend> _names2Friends = {};
@@ -19,7 +21,7 @@ class Friends extends Iterable<String> {
 
   String historyFor(String name) => _names2Friends[name].history();
 
-  Future<SocketOutcome> sendTo(String name, String message) async {
+  Future<void> sendTo(String name, String message) async {
     return _names2Friends[name].send(message);
   }
 
@@ -44,23 +46,22 @@ class Friend {
   List<Message> _messages;
 
   Friend(this._ipAddr, this._name) {
-    _messages = List();
+    _messages = [];
   }
 
-  void receive(String message) {
-    _messages.add(Message(_name, message));
+  Future<void> send(String message) async {
+    Socket socket = await Socket.connect(_ipAddr, ourPort);
+    socket.write(message);
+    socket.close();
+    await _add_message("Me", message);
   }
 
-  Future<SocketOutcome> send(String message) async {
-    try {
-      Socket socket = await Socket.connect(_ipAddr, ourPort);
-      socket.write(message);
-      socket.close();
-      _messages.add(Message("Me", message));
-      return SocketOutcome();
-    } on SocketException catch (e) {
-      return SocketOutcome(errorMsg: e.message);
-    }
+  Future<void> receive(String message) async {
+    return _add_message(_name, message);
+  }
+
+  Future<void> _add_message(String name, String message) async {
+    await m.protect(() async => _messages.add(Message(name, message)));
   }
 
   String history() => _messages.map((m) => m.transcript).fold("", (message, line) => message + '\n' + line);
@@ -77,16 +78,4 @@ class Message {
   Message(this._author, this._content);
 
   String get transcript => '$_author: $_content';
-}
-
-class SocketOutcome {
-  String _errorMessage;
-
-  SocketOutcome({String errorMsg = ""}) {
-    _errorMessage = errorMsg;
-  }
-
-  bool get sent => _errorMessage.length == 0;
-
-  String get errorMessage => _errorMessage;
 }
