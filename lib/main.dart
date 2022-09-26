@@ -129,6 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return AlertDialog(
             title: const Text('Add A Friend'),
             content: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 makeTextEntry(200, "Name", _nameController),
