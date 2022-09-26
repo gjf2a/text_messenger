@@ -146,24 +146,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
-
-              // https://stackoverflow.com/questions/52468987/how-to-turn-disabled-button-into-enabled-button-depending-on-conditions
-              ValueListenableBuilder<TextEditingValue>(
-                valueListenable: _nameController,
-                builder: (context, value, child) {
-                  return ElevatedButton(
-                    key: const Key("OKButton"),
-                    style: yesStyle,
-                    onPressed: value.text.isNotEmpty
-                        ? () {
-                            setState(() {
-                              addNew();
-                              Navigator.pop(context);
-                            });
-                          }
-                        : null,
-                    child: const Text('OK'),
-                  );
+              ElevatedButton(
+                key: const Key("OKButton"),
+                style: yesStyle,
+                child: const Text('OK'),
+                onPressed: () {
+                  setState(() {
+                    addNew();
+                    Navigator.pop(context);
+                  });
                 },
               ),
             ],
