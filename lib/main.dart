@@ -145,6 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
+        const SizedBox(height: 10.0),
         Text(_ipaddress),
         DropdownButton(
           value: _currentFriend,
