@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:network_info_plus/network_info_plus.dart';
+
 import 'package:flutter/material.dart';
 import 'package:text_messenger/data.dart';
 
@@ -14,7 +16,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Network Demo',
-      theme: ThemeData(primarySwatch: Colors.blue,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Network Demo Home Page'),
@@ -32,6 +35,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String _ipaddress = "Loading...";
   Friends _friends;
   String _currentFriend;
   List<DropdownMenuItem<String>> _friendList;
@@ -46,15 +50,25 @@ class _MyHomePageState extends State<MyHomePage> {
     _currentFriend = "Self";
     print("currentFriend: $_currentFriend");
     _nameController = TextEditingController(text: _currentFriend);
-    _ipController = TextEditingController(text: _friends.ipAddr(_currentFriend));
+    _ipController =
+        TextEditingController(text: _friends.ipAddr(_currentFriend));
     _sendController = TextEditingController();
     _setupServer();
+    _findIPAddress();
+  }
+
+  Future<void> _findIPAddress() async {
+    // Thank you https://stackoverflow.com/questions/52411168/how-to-get-device-ip-in-dart-flutter
+    String ip = await NetworkInfo().getWifiIP();
+    setState(() {
+      _ipaddress = "My IP: " + ip;
+    });
   }
 
   Future<void> _setupServer() async {
     try {
       ServerSocket server =
-        await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
+          await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
       server.listen(_listenToSocket); // StreamSubscription<Socket>
     } on SocketException catch (e) {
       _sendController.text = e.message;
@@ -117,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: _screenFunction(context),
-        ),
+      ),
     );
   }
 
@@ -126,12 +140,16 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
+        Text(_ipaddress),
         DropdownButton(
           value: _currentFriend,
           items: _friendList,
           onChanged: updateFriendList,
         ),
-        ElevatedButton(child: Text("Add Friend"), onPressed: addFriend,),
+        ElevatedButton(
+          child: Text("Add Friend"),
+          onPressed: addFriend,
+        ),
         historyBox(),
         makeActionText(200, "Send to $_currentFriend", _sendController, send),
       ],
@@ -141,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _newFriendScreen(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget> [
+      children: <Widget>[
         makeTextEntry(200, "Name", _nameController),
         makeTextEntry(200, "IP Address", _ipController),
         ElevatedButton(child: Text("Add"), onPressed: addNew),
@@ -149,19 +167,27 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget makeTextEntry(double width, String label, TextEditingController controller) {
+  Widget makeTextEntry(
+      double width, String label, TextEditingController controller) {
     return makeActionText(width, label, controller, (s) {});
   }
 
-  Widget makeActionText(double width, String label, TextEditingController controller, void Function(String) handler) {
-    return SizedBox(width: width,
-        child: TextField(controller: controller, onSubmitted: handler,
-          decoration: InputDecoration(labelText: label),));
+  Widget makeActionText(double width, String label,
+      TextEditingController controller, void Function(String) handler) {
+    return SizedBox(
+        width: width,
+        child: TextField(
+          controller: controller,
+          onSubmitted: handler,
+          decoration: InputDecoration(labelText: label),
+        ));
   }
 
   Widget historyBox() {
     // Concept from:  https://stackoverflow.com/questions/49638499/how-to-make-the-scrollable-text-in-flutter
-    String msg = _friends.hasFriend(_currentFriend) ? _friends.historyFor(_currentFriend) : "None";
+    String msg = _friends.hasFriend(_currentFriend)
+        ? _friends.historyFor(_currentFriend)
+        : "None";
     return Expanded(flex: 1, child: SingleChildScrollView(child: Text(msg)));
   }
 
@@ -174,7 +200,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<String> _sendToCurrentFriend(String msg) async {
     if (_friends.hasFriend(_currentFriend)) {
-      return _friends.sendTo(_currentFriend, msg)
+      return _friends
+          .sendTo(_currentFriend, msg)
           .then((value) => "")
           .catchError((e) => "Error: $e");
     } else {
