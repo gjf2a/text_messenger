@@ -107,20 +107,68 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void addFriend() {
-    setState(() {
-      _nameController.text = "";
-      _ipController.text = "";
-      _screenFunction = _newFriendScreen;
-    });
-  }
-
   void addNew() {
     setState(() {
       _friends.add(_nameController.text, _ipController.text);
       _currentFriend = _nameController.text;
-      _screenFunction = _mainScreen;
     });
+  }
+
+  final ButtonStyle yesStyle = ElevatedButton.styleFrom(
+      textStyle: const TextStyle(fontSize: 20), backgroundColor: Colors.green);
+  final ButtonStyle noStyle = ElevatedButton.styleFrom(
+      textStyle: const TextStyle(fontSize: 20), backgroundColor: Colors.red);
+
+  Future<void> _displayTextInputDialog(BuildContext context) async {
+    print("Loading Dialog");
+    _nameController.text = "";
+    _ipController.text = "";
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Add A Friend'),
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                makeTextEntry(200, "Name", _nameController),
+                makeTextEntry(200, "IP Address", _ipController),
+              ],
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                key: const Key("CancelButton"),
+                style: noStyle,
+                child: const Text('Cancel'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+
+              // https://stackoverflow.com/questions/52468987/how-to-turn-disabled-button-into-enabled-button-depending-on-conditions
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _nameController,
+                builder: (context, value, child) {
+                  return ElevatedButton(
+                    key: const Key("OKButton"),
+                    style: yesStyle,
+                    onPressed: value.text.isNotEmpty
+                        ? () {
+                            setState(() {
+                              addNew();
+                              Navigator.pop(context);
+                            });
+                          }
+                        : null,
+                    child: const Text('OK'),
+                  );
+                },
+              ),
+            ],
+          );
+        });
   }
 
   @override
@@ -133,7 +181,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: _screenFunction(context),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addFriend,
+        onPressed: () {
+          _displayTextInputDialog(context);
+        },
         tooltip: 'Add Friend',
         child: const Icon(Icons.add),
       ),
@@ -154,17 +204,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         historyBox(),
         makeActionText(200, "Send to $_currentFriend", _sendController, send),
-      ],
-    );
-  }
-
-  Widget _newFriendScreen(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        makeTextEntry(200, "Name", _nameController),
-        makeTextEntry(200, "IP Address", _ipController),
-        ElevatedButton(child: Text("Add"), onPressed: addNew),
       ],
     );
   }
