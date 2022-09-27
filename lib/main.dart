@@ -132,8 +132,8 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                makeTextEntry(200, "Name", _nameController),
-                makeTextEntry(200, "IP Address", _ipController),
+                makeTextEntry(200, "Name", TextInputType.text, _nameController),
+                makeTextEntry(200, "IP Address", TextInputType.number, _ipController),
               ],
             ),
             actions: <Widget>[
@@ -195,22 +195,23 @@ class _MyHomePageState extends State<MyHomePage> {
           onChanged: updateFriendList,
         ),
         historyBox(),
-        makeActionText(200, "Send to $_currentFriend", _sendController, send),
+        makeActionText(200, "Send to $_currentFriend", TextInputType.text, _sendController, send),
       ],
     );
   }
 
   Widget makeTextEntry(
-      double width, String label, TextEditingController controller) {
-    return makeActionText(width, label, controller, (s) {});
+      double width, String label, TextInputType inType, TextEditingController controller) {
+    return makeActionText(width, label, inType, controller, (s) {});
   }
 
-  Widget makeActionText(double width, String label,
+  Widget makeActionText(double width, String label, TextInputType inType,
       TextEditingController controller, void Function(String) handler) {
     return SizedBox(
         width: width,
         child: TextField(
           controller: controller,
+          keyboardType: inType,
           onSubmitted: handler,
           decoration: InputDecoration(labelText: label),
         ));
