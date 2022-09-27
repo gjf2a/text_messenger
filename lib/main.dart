@@ -107,20 +107,60 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void addFriend() {
-    setState(() {
-      _nameController.text = "";
-      _ipController.text = "";
-      _screenFunction = _newFriendScreen;
-    });
-  }
-
   void addNew() {
     setState(() {
       _friends.add(_nameController.text, _ipController.text);
       _currentFriend = _nameController.text;
-      _screenFunction = _mainScreen;
     });
+  }
+
+  final ButtonStyle yesStyle = ElevatedButton.styleFrom(
+      textStyle: const TextStyle(fontSize: 20), backgroundColor: Colors.green);
+  final ButtonStyle noStyle = ElevatedButton.styleFrom(
+      textStyle: const TextStyle(fontSize: 20), backgroundColor: Colors.red);
+
+  Future<void> _displayTextInputDialog(BuildContext context) async {
+    print("Loading Dialog");
+    _nameController.text = "";
+    _ipController.text = "";
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Add A Friend'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                makeTextEntry(200, "Name", _nameController),
+                makeTextEntry(200, "IP Address", _ipController),
+              ],
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                key: const Key("CancelButton"),
+                style: noStyle,
+                child: const Text('Cancel'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              ElevatedButton(
+                key: const Key("OKButton"),
+                style: yesStyle,
+                child: const Text('OK'),
+                onPressed: () {
+                  setState(() {
+                    addNew();
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ],
+          );
+        });
   }
 
   @override
@@ -132,6 +172,13 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: _screenFunction(context),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _displayTextInputDialog(context);
+        },
+        tooltip: 'Add Friend',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -140,29 +187,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
+        const SizedBox(height: 10.0),
         Text(_ipaddress),
         DropdownButton(
           value: _currentFriend,
           items: _friendList,
           onChanged: updateFriendList,
         ),
-        ElevatedButton(
-          child: Text("Add Friend"),
-          onPressed: addFriend,
-        ),
         historyBox(),
         makeActionText(200, "Send to $_currentFriend", _sendController, send),
-      ],
-    );
-  }
-
-  Widget _newFriendScreen(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        makeTextEntry(200, "Name", _nameController),
-        makeTextEntry(200, "IP Address", _ipController),
-        ElevatedButton(child: Text("Add"), onPressed: addNew),
       ],
     );
   }
