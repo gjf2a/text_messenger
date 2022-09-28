@@ -5,24 +5,31 @@ const int ourPort = 8888;
 final m = Mutex();
 
 class Friends extends Iterable<String> {
-  Map<String,Friend> _names2Friends = {};
-  Map<String,Friend> _ips2Friends = {};
+  Map<String, Friend> _names2Friends = {};
+  Map<String, Friend> _ips2Friends = {};
 
   void add(String name, String ip) {
-    _names2Friends[name] = Friend(ip, name);
-    _ips2Friends[ip] = _names2Friends[name];
+    Friend f = Friend(ipAddr: ip, name: name);
+    _names2Friends[name] = f;
+    _ips2Friends[ip] = f;
   }
 
-  String getName(String ipAddr) => _ips2Friends[ipAddr].name;
+  String? getName(String? ipAddr) => _ips2Friends[ipAddr]?.name;
 
-  String ipAddr(String name) => _names2Friends[name].ipAddr;
+  String? ipAddr(String? name) => _names2Friends[name]?.ipAddr;
 
-  bool hasFriend(String name) => _names2Friends.containsKey(name);
+  bool hasFriend(String? name) => _names2Friends.containsKey(name);
 
-  String historyFor(String name) => _names2Friends[name].history();
+  String historyFor(String? name) {
+    if (hasFriend(name)) {
+      return _names2Friends[name]!.history();
+    } else {
+      return "None";
+    }
+  }
 
-  Future<void> sendTo(String name, String message) async {
-    return _names2Friends[name].send(message);
+  Future<void> sendTo(String? name, String message) async {
+    return _names2Friends[name]?.send(message);
   }
 
   void receiveFrom(String ip, String message) {
@@ -33,7 +40,7 @@ class Friends extends Iterable<String> {
       add(newFriend, ip);
       print("added $newFriend!");
     }
-    _ips2Friends[ip].receive(message);
+    _ips2Friends[ip]!.receive(message);
   }
 
   @override
@@ -41,41 +48,38 @@ class Friends extends Iterable<String> {
 }
 
 class Friend {
-  String _ipAddr;
-  String _name;
-  List<Message> _messages;
+  final String ipAddr;
+  final String name;
+  final List<Message> _messages = [];
 
-  Friend(this._ipAddr, this._name) {
-    _messages = [];
-  }
+  Friend({required this.ipAddr, required this.name});
 
   Future<void> send(String message) async {
-    Socket socket = await Socket.connect(_ipAddr, ourPort);
+    Socket socket = await Socket.connect(ipAddr, ourPort);
     socket.write(message);
     socket.close();
     await _add_message("Me", message);
   }
 
   Future<void> receive(String message) async {
-    return _add_message(_name, message);
+    return _add_message(name, message);
   }
 
   Future<void> _add_message(String name, String message) async {
-    await m.protect(() async => _messages.add(Message(name, message)));
+    await m.protect(
+        () async => _messages.add(Message(author: name, content: message)));
   }
 
-  String history() => _messages.map((m) => m.transcript).fold("", (message, line) => message + '\n' + line);
-
-  String get ipAddr => _ipAddr;
-
-  String get name => _name;
+  String history() => _messages
+      .map((m) => m.transcript)
+      .fold("", (message, line) => message + '\n' + line);
 }
 
 class Message {
-  String _content;
-  String _author;
+  final String content;
+  final String author;
 
-  Message(this._author, this._content);
+  const Message({required this.author, required this.content});
 
-  String get transcript => '$_author: $_content';
+  String get transcript => '$author: $content';
 }

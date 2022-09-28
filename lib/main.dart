@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({super.key, required this.title});
 
   final String title;
 
@@ -35,11 +35,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _ipaddress = "Loading...";
-  Friends _friends;
-  String _currentFriend;
-  List<DropdownMenuItem<String>> _friendList;
-  TextEditingController _nameController, _ipController, _sendController;
+  String? _ipaddress = "Loading...";
+  late Friends _friends;
+  String? _currentFriend;
+  late List<DropdownMenuItem<String>> _friendList;
+  late TextEditingController _nameController, _ipController, _sendController;
 
   void initState() {
     super.initState();
@@ -57,9 +57,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _findIPAddress() async {
     // Thank you https://stackoverflow.com/questions/52411168/how-to-get-device-ip-in-dart-flutter
-    String ip = await NetworkInfo().getWifiIP();
+    String? ip = await NetworkInfo().getWifiIP();
     setState(() {
-      _ipaddress = "My IP: " + ip;
+      _ipaddress = "My IP: " + ip!;
     });
   }
 
@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return items;
   }
 
-  void updateFriendList(String selectedFriend) {
+  void updateFriendList(String? selectedFriend) {
     setState(() {
       _currentFriend = selectedFriend;
     });
@@ -187,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         const SizedBox(height: 10.0),
-        Text(_ipaddress),
+        Text(_ipaddress!),
         DropdownButton(
           value: _currentFriend,
           items: _friendList,
@@ -219,10 +219,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget historyBox() {
     // Concept from:  https://stackoverflow.com/questions/49638499/how-to-make-the-scrollable-text-in-flutter
-    String msg = _friends.hasFriend(_currentFriend)
-        ? _friends.historyFor(_currentFriend)
-        : "None";
-    return Expanded(flex: 1, child: SingleChildScrollView(child: Text(msg)));
+    return Expanded(
+        flex: 1,
+        child: SingleChildScrollView(
+            child: Text(_friends.historyFor(_currentFriend))));
   }
 
   Future<void> send(String msg) async {
