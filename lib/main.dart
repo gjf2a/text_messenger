@@ -6,6 +6,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 
 import 'package:flutter/material.dart';
 import 'package:text_messenger/data.dart';
+import 'package:text_messenger/text_widgets.dart';
 
 void main() {
   runApp(MyApp());
@@ -130,9 +131,16 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                makeTextEntry(200, "Name", TextInputType.text, _nameController),
-                makeTextEntry(
-                    200, "IP Address", TextInputType.number, _ipController),
+                TextEntry(
+                    width: 200,
+                    label: "Name",
+                    inType: TextInputType.text,
+                    controller: _nameController),
+                TextEntry(
+                    width: 200,
+                    label: "IP Address",
+                    inType: TextInputType.number,
+                    controller: _ipController),
               ],
             ),
             actions: <Widget>[
@@ -194,27 +202,14 @@ class _MyHomePageState extends State<MyHomePage> {
           onChanged: updateFriendList,
         ),
         historyBox(),
-        makeActionText(200, "Send to $_currentFriend", TextInputType.text,
-            _sendController, send),
+        ActionText(
+            width: 200,
+            label: "Send to $_currentFriend",
+            inType: TextInputType.text,
+            controller: _sendController,
+            handler: send),
       ],
     );
-  }
-
-  Widget makeTextEntry(double width, String label, TextInputType inType,
-      TextEditingController controller) {
-    return makeActionText(width, label, inType, controller, (s) {});
-  }
-
-  Widget makeActionText(double width, String label, TextInputType inType,
-      TextEditingController controller, void Function(String) handler) {
-    return SizedBox(
-        width: width,
-        child: TextField(
-          controller: controller,
-          keyboardType: inType,
-          onSubmitted: handler,
-          decoration: InputDecoration(labelText: label),
-        ));
   }
 
   Widget historyBox() {
