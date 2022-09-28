@@ -40,11 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
   String _currentFriend;
   List<DropdownMenuItem<String>> _friendList;
   TextEditingController _nameController, _ipController, _sendController;
-  Widget Function(BuildContext) _screenFunction;
 
   void initState() {
     super.initState();
-    _screenFunction = _mainScreen;
     _friends = Friends();
     _friends.add("Self", "127.0.0.1");
     _currentFriend = "Self";
@@ -133,7 +131,8 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 makeTextEntry(200, "Name", TextInputType.text, _nameController),
-                makeTextEntry(200, "IP Address", TextInputType.number, _ipController),
+                makeTextEntry(
+                    200, "IP Address", TextInputType.number, _ipController),
               ],
             ),
             actions: <Widget>[
@@ -170,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: _screenFunction(context),
+        child: _mainScreen(context),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -195,13 +194,14 @@ class _MyHomePageState extends State<MyHomePage> {
           onChanged: updateFriendList,
         ),
         historyBox(),
-        makeActionText(200, "Send to $_currentFriend", TextInputType.text, _sendController, send),
+        makeActionText(200, "Send to $_currentFriend", TextInputType.text,
+            _sendController, send),
       ],
     );
   }
 
-  Widget makeTextEntry(
-      double width, String label, TextInputType inType, TextEditingController controller) {
+  Widget makeTextEntry(double width, String label, TextInputType inType,
+      TextEditingController controller) {
     return makeActionText(width, label, inType, controller, (s) {});
   }
 
