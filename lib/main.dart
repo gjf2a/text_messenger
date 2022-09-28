@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late Friends _friends;
   String? _currentFriend;
   late List<DropdownMenuItem<String>> _friendList;
-  late TextEditingController _nameController, _ipController, _sendController;
+  late TextEditingController _nameController, _ipController;
 
   void initState() {
     super.initState();
@@ -51,7 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _nameController = TextEditingController(text: _currentFriend);
     _ipController =
         TextEditingController(text: _friends.ipAddr(_currentFriend));
-    _sendController = TextEditingController();
     _setupServer();
     _findIPAddress();
   }
@@ -70,7 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
           await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
       server.listen(_listenToSocket); // StreamSubscription<Socket>
     } on SocketException catch (e) {
-      _sendController.text = e.message;
+      // TODO FIX THIS LATER
+      //_sendController.text = e.message;
     }
   }
 
@@ -191,7 +191,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _mainScreen(BuildContext context) {
     _friendList = makeFriendList();
-    return Column(
+    /*return Column(
+      
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         const SizedBox(height: 10.0),
@@ -201,32 +202,10 @@ class _MyHomePageState extends State<MyHomePage> {
           items: _friendList,
           onChanged: updateFriendList,
         ),
-        ScrollText(text: _friends.historyFor(_currentFriend)),
-        ActionText(
-            width: 200,
-            label: "Send to $_currentFriend",
-            inType: TextInputType.text,
-            controller: _sendController,
-            handler: send),
       ],
-    );
-  }
+      
 
-  Future<void> send(String msg) async {
-    String response = await _sendToCurrentFriend(msg);
-    setState(() {
-      _sendController.text = response;
-    });
-  }
-
-  Future<String> _sendToCurrentFriend(String msg) async {
-    if (_friends.hasFriend(_currentFriend)) {
-      return _friends
-          .sendTo(_currentFriend, msg)
-          .then((value) => "")
-          .catchError((e) => "Error: $e");
-    } else {
-      return "Can't send to $_currentFriend";
-    }
+    );*/
+    return ChatScreen(friend: _friends.getFriend(_currentFriend));
   }
 }

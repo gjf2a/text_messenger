@@ -1,8 +1,59 @@
 import 'dart:io';
 import 'package:mutex/mutex.dart';
+import 'package:flutter/material.dart';
+import 'package:text_messenger/text_widgets.dart';
 
 const int ourPort = 8888;
 final m = Mutex();
+
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key, required this.friend});
+
+  final Friend? friend;
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  late TextEditingController _sendController;
+
+  void initState() {
+    super.initState();
+    _sendController = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String currentFriend = widget.friend!.name;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        ScrollText(text: widget.friend!.history()),
+        ActionText(
+            width: 200,
+            label: "Send to $currentFriend",
+            inType: TextInputType.text,
+            controller: _sendController,
+            handler: send),
+      ],
+    );
+  }
+
+  Future<void> send(String msg) async {
+    String response = await _sendToCurrentFriend(msg);
+    setState(() {
+      _sendController.text = response;
+    });
+  }
+
+  Future<String> _sendToCurrentFriend(String msg) async {
+    return widget.friend!
+        .send(msg)
+        .then((value) => "")
+        .catchError((e) => "Error: $e");
+  }
+}
 
 class Friends extends Iterable<String> {
   Map<String, Friend> _names2Friends = {};
@@ -19,6 +70,8 @@ class Friends extends Iterable<String> {
   String? ipAddr(String? name) => _names2Friends[name]?.ipAddr;
 
   bool hasFriend(String? name) => _names2Friends.containsKey(name);
+
+  Friend? getFriend(String? name) => _names2Friends[name];
 
   String historyFor(String? name) {
     if (hasFriend(name)) {
