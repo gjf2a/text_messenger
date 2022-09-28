@@ -201,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
           items: _friendList,
           onChanged: updateFriendList,
         ),
-        historyBox(),
+        ScrollText(text: _friends.historyFor(_currentFriend)),
         ActionText(
             width: 200,
             label: "Send to $_currentFriend",
@@ -210,14 +210,6 @@ class _MyHomePageState extends State<MyHomePage> {
             handler: send),
       ],
     );
-  }
-
-  Widget historyBox() {
-    // Concept from:  https://stackoverflow.com/questions/49638499/how-to-make-the-scrollable-text-in-flutter
-    return Expanded(
-        flex: 1,
-        child: SingleChildScrollView(
-            child: Text(_friends.historyFor(_currentFriend))));
   }
 
   Future<void> send(String msg) async {
