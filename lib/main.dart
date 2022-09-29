@@ -40,7 +40,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String? _ipaddress = "Loading...";
   late Friends _friends;
-  String? _currentFriend;
   late List<DropdownMenuItem<String>> _friendList;
   late TextEditingController _nameController, _ipController;
 
@@ -48,11 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _friends = Friends();
     _friends.add("Self", "127.0.0.1");
-    _currentFriend = "Self";
-    print("currentFriend: $_currentFriend");
-    _nameController = TextEditingController(text: _currentFriend);
-    _ipController =
-        TextEditingController(text: _friends.ipAddr(_currentFriend));
+    _nameController = TextEditingController();
+    _ipController = TextEditingController();
     _setupServer();
     _findIPAddress();
   }
@@ -88,30 +84,11 @@ class _MyHomePageState extends State<MyHomePage> {
     String received = String.fromCharCodes(incomingData);
     print("Received '$received' from '$ip'");
     _friends.receiveFrom(ip, received);
-    _currentFriend = _friends.getName(ip);
-  }
-
-  // From https://medium.com/@boldijar.paul/comboboxes-in-flutter-cabc9178cc95
-  List<DropdownMenuItem<String>> makeFriendList() {
-    print("making friend list");
-    List<DropdownMenuItem<String>> items = [];
-    for (String friend in _friends) {
-      items.add(DropdownMenuItem(value: friend, child: Text(friend)));
-    }
-    print("${items.length} friends");
-    return items;
-  }
-
-  void updateFriendList(String? selectedFriend) {
-    setState(() {
-      _currentFriend = selectedFriend;
-    });
   }
 
   void addNew() {
     setState(() {
       _friends.add(_nameController.text, _ipController.text);
-      _currentFriend = _nameController.text;
     });
   }
 
@@ -207,8 +184,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _mainScreen(BuildContext context) {
-    _friendList = makeFriendList();
-
     /*return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -228,7 +203,5 @@ class _MyHomePageState extends State<MyHomePage> {
       ],
     )*/
     ;
-
-    //return ChatScreen(friend: _friends.getFriend(_currentFriend));
   }
 }

@@ -49,9 +49,9 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _sendController.text = "";
       });
-    })
-        // TODO FIX WITH SNACKBAR
-        .catchError((e) => "Error: $e");
+    });
+    // TODO FIX WITH SNACKBAR
+    //.catchError((e) => "Error: $e");
   }
 }
 
@@ -65,25 +65,9 @@ class Friends extends Iterable<String> {
     _ips2Friends[ip] = f;
   }
 
-  String? getName(String? ipAddr) => _ips2Friends[ipAddr]?.name;
-
   String? ipAddr(String? name) => _names2Friends[name]?.ipAddr;
 
-  bool hasFriend(String? name) => _names2Friends.containsKey(name);
-
   Friend? getFriend(String? name) => _names2Friends[name];
-
-  String historyFor(String? name) {
-    if (hasFriend(name)) {
-      return _names2Friends[name]!.history();
-    } else {
-      return "None";
-    }
-  }
-
-  Future<void> sendTo(String? name, String message) async {
-    return _names2Friends[name]?.send(message);
-  }
 
   void receiveFrom(String ip, String message) {
     print("receiveFrom($ip, $message)");
