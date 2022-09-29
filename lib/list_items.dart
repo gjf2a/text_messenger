@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:text_messenger/data.dart';
+import 'package:text_messenger/friends_data.dart';
 
 typedef FriendListChatCallback = Function(Friend item);
 typedef FriendListEditCallback = Function(Friend item);

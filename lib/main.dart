@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:network_info_plus/network_info_plus.dart';
 
 import 'package:flutter/material.dart';
-import 'package:text_messenger/data.dart';
+import 'package:text_messenger/friends_data.dart';
 import 'package:text_messenger/text_widgets.dart';
 
 import 'chat.dart';
