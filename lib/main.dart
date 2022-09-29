@@ -191,10 +191,13 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _handleChat(Friend friend) {
-    setState(() {
-      print("Chat");
-    });
+  Future<void> _handleChat(Friend friend) async {
+    print("Chat");
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(friend: friend),
+      ),
+    );
   }
 
   void _handleEditFriend(Friend friend) {
@@ -205,30 +208,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _mainScreen(BuildContext context) {
     _friendList = makeFriendList();
+
     /*return Column(
-      
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         const SizedBox(height: 10.0),
-        Text(_ipaddress!),
-        DropdownButton(
-          value: _currentFriend,
-          items: _friendList,
-          onChanged: updateFriendList,
-        ),
-      ],
-      );
-      */
+        Text(_ipaddress!),*/
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      children: _friends.map((item) {
+      children: _friends.map((name) {
         return FriendListItem(
-          friend: _friends.getFriend(item)!,
+          friend: _friends.getFriend(name)!,
           onListTapped: _handleChat,
           onListEdited: _handleEditFriend,
         );
       }).toList(),
     );
+    /*
+      ],
+    )*/
+    ;
 
     //return ChatScreen(friend: _friends.getFriend(_currentFriend));
   }

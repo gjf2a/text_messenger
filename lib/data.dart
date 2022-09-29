@@ -26,18 +26,22 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     String currentFriend = widget.friend!.name;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        ScrollText(text: widget.friend!.history()),
-        ActionText(
-            width: 200,
-            label: "Send to $currentFriend",
-            inType: TextInputType.text,
-            controller: _sendController,
-            handler: send),
-      ],
-    );
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Chat with " + widget.friend!.name),
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ScrollText(text: widget.friend!.history()),
+            ActionText(
+                width: 200,
+                label: "Send to $currentFriend",
+                inType: TextInputType.text,
+                controller: _sendController,
+                handler: send),
+          ],
+        ));
   }
 
   Future<void> send(String msg) async {

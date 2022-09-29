@@ -26,7 +26,7 @@ class FriendListItem extends StatelessWidget {
       },
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).primaryColor,
-        child: Text(friend.name[0]),
+        child: Text(friend.name[0].toUpperCase()),
       ),
       title: Text(
         friend.name,
