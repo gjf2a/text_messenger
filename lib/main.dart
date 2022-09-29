@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:text_messenger/data.dart';
 import 'package:text_messenger/text_widgets.dart';
 
+import 'list_items.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -189,6 +191,18 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _handleChat(Friend friend) {
+    setState(() {
+      print("Chat");
+    });
+  }
+
+  void _handleEditFriend(Friend friend) {
+    setState(() {
+      print("Edit");
+    });
+  }
+
   Widget _mainScreen(BuildContext context) {
     _friendList = makeFriendList();
     /*return Column(
@@ -203,9 +217,19 @@ class _MyHomePageState extends State<MyHomePage> {
           onChanged: updateFriendList,
         ),
       ],
-      
+      );
+      */
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      children: _friends.map((item) {
+        return FriendListItem(
+          friend: _friends.getFriend(item)!,
+          onListTapped: _handleChat,
+          onListEdited: _handleEditFriend,
+        );
+      }).toList(),
+    );
 
-    );*/
-    return ChatScreen(friend: _friends.getFriend(_currentFriend));
+    //return ChatScreen(friend: _friends.getFriend(_currentFriend));
   }
 }
