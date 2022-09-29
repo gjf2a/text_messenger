@@ -41,16 +41,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> send(String msg) async {
-    String response = await _sendToCurrentFriend(msg);
-    setState(() {
-      _sendController.text = response;
-    });
-  }
-
-  Future<String> _sendToCurrentFriend(String msg) async {
-    return widget.friend!
-        .send(msg)
-        .then((value) => "")
+    await widget.friend!.send(msg).then((value) {
+      setState(() {
+        _sendController.text = "";
+      });
+    })
+        // TODO FIX WITH SNACKBAR
         .catchError((e) => "Error: $e");
   }
 }
