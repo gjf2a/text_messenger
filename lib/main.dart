@@ -149,25 +149,6 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: _mainScreen(context),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _displayTextInputDialog(context);
-        },
-        tooltip: 'Add Friend',
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
   Future<void> _handleChat(Friend friend) async {
     print("Chat");
     await Navigator.of(context).push(
@@ -183,25 +164,39 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Widget _mainScreen(BuildContext context) {
-    /*return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        const SizedBox(height: 10.0),
-        Text(_ipaddress!),*/
-    return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      children: _friends.map((name) {
-        return FriendListItem(
-          friend: _friends.getFriend(name)!,
-          onListTapped: _handleChat,
-          onListEdited: _handleEditFriend,
-        );
-      }).toList(),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          children: _friends.map((name) {
+            return FriendListItem(
+              friend: _friends.getFriend(name)!,
+              onListTapped: _handleChat,
+              onListEdited: _handleEditFriend,
+            );
+          }).toList(),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _displayTextInputDialog(context);
+        },
+        tooltip: 'Add Friend',
+        child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: Padding(
+          padding: EdgeInsets.all(10),
+          child: Container(
+              width: double.infinity,
+              child: Text(
+                _ipaddress!,
+                textAlign: TextAlign.center,
+              ))),
     );
-    /*
-      ],
-    )*/
-    ;
   }
 }
