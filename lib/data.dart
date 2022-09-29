@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:mutex/mutex.dart';
 
 const int ourPort = 8888;
@@ -14,23 +15,9 @@ class Friends extends Iterable<String> {
     _ips2Friends[ip] = f;
   }
 
-  String? getName(String? ipAddr) => _ips2Friends[ipAddr]?.name;
-
   String? ipAddr(String? name) => _names2Friends[name]?.ipAddr;
 
-  bool hasFriend(String? name) => _names2Friends.containsKey(name);
-
-  String historyFor(String? name) {
-    if (hasFriend(name)) {
-      return _names2Friends[name]!.history();
-    } else {
-      return "None";
-    }
-  }
-
-  Future<void> sendTo(String? name, String message) async {
-    return _names2Friends[name]?.send(message);
-  }
+  Friend? getFriend(String? name) => _names2Friends[name];
 
   void receiveFrom(String ip, String message) {
     print("receiveFrom($ip, $message)");
@@ -47,7 +34,7 @@ class Friends extends Iterable<String> {
   Iterator<String> get iterator => _names2Friends.keys.iterator;
 }
 
-class Friend {
+class Friend extends ChangeNotifier {
   final String ipAddr;
   final String name;
   final List<Message> _messages = [];
@@ -66,8 +53,10 @@ class Friend {
   }
 
   Future<void> _add_message(String name, String message) async {
-    await m.protect(
-        () async => _messages.add(Message(author: name, content: message)));
+    await m.protect(() async {
+      _messages.add(Message(author: name, content: message));
+      notifyListeners();
+    });
   }
 
   String history() => _messages

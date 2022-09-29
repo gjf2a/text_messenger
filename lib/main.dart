@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:text_messenger/data.dart';
 import 'package:text_messenger/text_widgets.dart';
 
+import 'chat.dart';
+import 'list_items.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -21,7 +24,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Network Demo Home Page'),
+      home: MyHomePage(title: 'Networking Demo'),
     );
   }
 }
@@ -38,20 +41,15 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String? _ipaddress = "Loading...";
   late Friends _friends;
-  String? _currentFriend;
   late List<DropdownMenuItem<String>> _friendList;
-  late TextEditingController _nameController, _ipController, _sendController;
+  late TextEditingController _nameController, _ipController;
 
   void initState() {
     super.initState();
     _friends = Friends();
     _friends.add("Self", "127.0.0.1");
-    _currentFriend = "Self";
-    print("currentFriend: $_currentFriend");
-    _nameController = TextEditingController(text: _currentFriend);
-    _ipController =
-        TextEditingController(text: _friends.ipAddr(_currentFriend));
-    _sendController = TextEditingController();
+    _nameController = TextEditingController();
+    _ipController = TextEditingController();
     _setupServer();
     _findIPAddress();
   }
@@ -70,7 +68,9 @@ class _MyHomePageState extends State<MyHomePage> {
           await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
       server.listen(_listenToSocket); // StreamSubscription<Socket>
     } on SocketException catch (e) {
-      _sendController.text = e.message;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error: $e"),
+      ));
     }
   }
 
@@ -86,30 +86,11 @@ class _MyHomePageState extends State<MyHomePage> {
     String received = String.fromCharCodes(incomingData);
     print("Received '$received' from '$ip'");
     _friends.receiveFrom(ip, received);
-    _currentFriend = _friends.getName(ip);
-  }
-
-  // From https://medium.com/@boldijar.paul/comboboxes-in-flutter-cabc9178cc95
-  List<DropdownMenuItem<String>> makeFriendList() {
-    print("making friend list");
-    List<DropdownMenuItem<String>> items = [];
-    for (String friend in _friends) {
-      items.add(DropdownMenuItem(value: friend, child: Text(friend)));
-    }
-    print("${items.length} friends");
-    return items;
-  }
-
-  void updateFriendList(String? selectedFriend) {
-    setState(() {
-      _currentFriend = selectedFriend;
-    });
   }
 
   void addNew() {
     setState(() {
       _friends.add(_nameController.text, _ipController.text);
-      _currentFriend = _nameController.text;
     });
   }
 
@@ -170,6 +151,21 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  Future<void> _handleChat(Friend friend) async {
+    print("Chat");
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(friend: friend),
+      ),
+    );
+  }
+
+  void _handleEditFriend(Friend friend) {
+    setState(() {
+      print("Edit");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -177,7 +173,16 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: _mainScreen(context),
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          children: _friends.map((name) {
+            return FriendListItem(
+              friend: _friends.getFriend(name)!,
+              onListTapped: _handleChat,
+              onListEdited: _handleEditFriend,
+            );
+          }).toList(),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -186,47 +191,14 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Add Friend',
         child: const Icon(Icons.add),
       ),
+      bottomNavigationBar: Padding(
+          padding: EdgeInsets.all(10),
+          child: Container(
+              width: double.infinity,
+              child: Text(
+                _ipaddress!,
+                textAlign: TextAlign.center,
+              ))),
     );
-  }
-
-  Widget _mainScreen(BuildContext context) {
-    _friendList = makeFriendList();
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        const SizedBox(height: 10.0),
-        Text(_ipaddress!),
-        DropdownButton(
-          value: _currentFriend,
-          items: _friendList,
-          onChanged: updateFriendList,
-        ),
-        ScrollText(text: _friends.historyFor(_currentFriend)),
-        ActionText(
-            width: 200,
-            label: "Send to $_currentFriend",
-            inType: TextInputType.text,
-            controller: _sendController,
-            handler: send),
-      ],
-    );
-  }
-
-  Future<void> send(String msg) async {
-    String response = await _sendToCurrentFriend(msg);
-    setState(() {
-      _sendController.text = response;
-    });
-  }
-
-  Future<String> _sendToCurrentFriend(String msg) async {
-    if (_friends.hasFriend(_currentFriend)) {
-      return _friends
-          .sendTo(_currentFriend, msg)
-          .then((value) => "")
-          .catchError((e) => "Error: $e");
-    } else {
-      return "Can't send to $_currentFriend";
-    }
   }
 }
