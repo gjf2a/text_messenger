@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:text_messenger/data.dart';
 import 'package:text_messenger/text_widgets.dart';
 
+import 'chat.dart';
 import 'list_items.dart';
 
 void main() {
