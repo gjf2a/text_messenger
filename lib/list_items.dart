@@ -17,7 +17,8 @@ class FriendListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return Card(
+        child: ListTile(
       onTap: () {
         onListTapped(friend);
       },
@@ -32,6 +33,6 @@ class FriendListItem extends StatelessWidget {
         friend.name,
       ),
       subtitle: Text(friend.ipAddr),
-    );
+    ));
   }
 }

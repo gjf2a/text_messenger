@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Network Demo Home Page'),
+      home: MyHomePage(title: 'Networking Demo'),
     );
   }
 }
