@@ -55,14 +55,3 @@ class TextEntry extends StatelessWidget {
         handler: (s) {});
   }
 }
-
-class ScrollText extends StatelessWidget {
-  const ScrollText({super.key, required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(flex: 1, child: SingleChildScrollView(child: Text(text)));
-  }
-}

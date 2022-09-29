@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
 import 'package:mutex/mutex.dart';
 
@@ -62,6 +63,31 @@ class Friend extends ChangeNotifier {
   String history() => _messages
       .map((m) => m.transcript)
       .fold("", (message, line) => message + '\n' + line);
+
+  Widget bubble_history() {
+    return ListView(
+      shrinkWrap: true,
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      children: _messages.map((m) {
+        bool is_me = m.author == "Me";
+        return BubbleNormal(
+          text: m.content,
+          isSender: is_me,
+          color: is_me ? Color(0xFFE8E8EE) : Color(0xFF1B97F3),
+          tail: false,
+          textStyle: is_me
+              ? TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                )
+              : TextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
+                ),
+        );
+      }).toList(),
+    );
+  }
 }
 
 class Message {

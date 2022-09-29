@@ -1,7 +1,8 @@
+import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
 import 'package:text_messenger/text_widgets.dart';
 
-import 'data.dart';
+import 'friends_data.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key, required this.friend});
@@ -13,11 +14,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  late TextEditingController _sendController;
-
   void initState() {
     super.initState();
-    _sendController = TextEditingController();
     widget.friend!.addListener(update);
   }
 
@@ -33,11 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> send(String msg) async {
-    await widget.friend!.send(msg).then((value) {
-      setState(() {
-        _sendController.text = "";
-      });
-    }).catchError((e) {
+    await widget.friend!.send(msg).catchError((e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Error: $e"),
       ));
@@ -46,21 +40,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String currentFriend = widget.friend!.name;
     return Scaffold(
       appBar: AppBar(
         title: Text("Chat with " + widget.friend!.name),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          ScrollText(text: widget.friend!.history()),
-          ActionText(
-              width: 200,
-              label: "Send to $currentFriend",
-              inType: TextInputType.text,
-              controller: _sendController,
-              handler: send),
+          Expanded(child: widget.friend!.bubble_history()),
+          MessageBar(onSend: (_) => send(_)),
         ],
       ),
     );
