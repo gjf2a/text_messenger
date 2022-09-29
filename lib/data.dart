@@ -27,21 +27,22 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     String currentFriend = widget.friend!.name;
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Chat with " + widget.friend!.name),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ScrollText(text: widget.friend!.history()),
-            ActionText(
-                width: 200,
-                label: "Send to $currentFriend",
-                inType: TextInputType.text,
-                controller: _sendController,
-                handler: send),
-          ],
-        ));
+      appBar: AppBar(
+        title: Text("Chat with " + widget.friend!.name),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          ScrollText(text: widget.friend!.history()),
+          ActionText(
+              width: 200,
+              label: "Send to $currentFriend",
+              inType: TextInputType.text,
+              controller: _sendController,
+              handler: send),
+        ],
+      ),
+    );
   }
 
   Future<void> send(String msg) async {
@@ -49,9 +50,13 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _sendController.text = "";
       });
+    })
+        // TODO FIX WITH SNACKBAR
+        .catchError((e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error: $e"),
+      ));
     });
-    // TODO FIX WITH SNACKBAR
-    //.catchError((e) => "Error: $e");
   }
 }
 
