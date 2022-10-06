@@ -68,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
           await ServerSocket.bind(InternetAddress.anyIPv4, ourPort);
       server.listen(_listenToSocket); // StreamSubscription<Socket>
     } on SocketException catch (e) {
+      print("ServerSocket setup error: $e");
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Error: $e"),
       ));
